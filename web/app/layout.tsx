@@ -19,8 +19,8 @@ const notoSerif = Noto_Serif_SC({
 });
 
 export const metadata: Metadata = {
-  title: "用 AI 重新看见人 | 人文季 Demo",
-  description: "历史人物 × 知乎热榜对话 · 2026 知乎人文季",
+  title: "用 AI 重新看见人 | 人文季",
+  description: "历史人物 × 知乎热榜对话",
 };
 
 export default function RootLayout({

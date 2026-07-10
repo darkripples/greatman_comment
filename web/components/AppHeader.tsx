@@ -24,7 +24,7 @@ export function AppHeader({
           <h1 className="text-base md:text-lg font-serif font-semibold text-stone-900 truncate">
             用 AI 重新看见人
           </h1>
-          <p className="text-[11px] text-stone-500">人文季 · 历史单元 Demo</p>
+          <p className="text-[11px] text-stone-500">人文季 · 历史单元</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <ModeToggle mode={chatMode} onChange={onChatModeChange} compact />
