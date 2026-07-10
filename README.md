@@ -1,0 +1,2 @@
+# greatman_comment
+接入知乎热榜与历史人物agent，以历史人物的语气点评当前热榜新闻
