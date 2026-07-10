@@ -1,7 +1,7 @@
 # --- Local runtime data (keep server/data dir via .gitkeep) ---
 server/data/*
 !server/data/.gitkeep
-data/
+/data/
 
 # --- Go build output ---
 *.exe
