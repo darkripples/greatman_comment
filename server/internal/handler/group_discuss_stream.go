@@ -74,9 +74,12 @@ func (h *GroupDiscussStreamHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 			"index":       idx,
 		})
 
-		turns, prov, mdl, err := orch.RunSpeaker(
+		turns, prov, mdl, err := orch.RunSpeakerStream(
 			r.Context(), characterIDs, req.Question, source,
 			req.Provider, req.History, round, idx, completed,
+			func(delta string) error {
+				return sse.Event("delta", map[string]any{"characterId": ch.ID, "content": delta})
+			},
 		)
 		provider = prov
 		model = mdl

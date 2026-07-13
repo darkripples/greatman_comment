@@ -4,6 +4,7 @@ import type { ChatMessage, CharacterItem } from "@/lib/types";
 import { MAX_GROUP_MEMBERS, characterAccent, characterBg } from "@/lib/types";
 import type { ChatMode } from "./ModeToggle";
 import { CitationBlock } from "./CitationBlock";
+import { RoundtableSeats } from "./RoundtableSeats";
 
 interface ChatWindowProps {
   mode: ChatMode;
@@ -20,6 +21,12 @@ interface ChatWindowProps {
   onSend: () => void;
   onNewDiscussion: () => void;
 }
+
+const groupFollowUps = [
+  "请回应另一位人物刚才的观点。",
+  "这一判断有哪些时代局限？",
+  "请把分歧落到今天的具体选择上。",
+];
 
 function RoundDivider({ round }: { round: number }) {
   return (
@@ -75,6 +82,9 @@ export function ChatWindow({
             <p className="text-xs text-stone-400 mt-1.5">
               选择精选场景，或从热榜挑选议题开始
             </p>
+          )}
+          {mode === "group" && groupCharacters && groupCharacters.length > 0 && (
+            <RoundtableSeats characters={groupCharacters} messages={messages} />
           )}
         </div>
         <button
@@ -163,6 +173,15 @@ export function ChatWindow({
       <footer className="shrink-0 p-3 border-t border-stone-200 bg-white">
         {providerHint && (
           <p className="text-xs text-amber-700 mb-2 leading-relaxed">{providerHint}</p>
+        )}
+        {mode === "group" && messages.length > 0 && !loading && (
+          <div className="mb-2 flex gap-2 overflow-x-auto pb-1">
+            {groupFollowUps.map((suggestion) => (
+              <button key={suggestion} type="button" onClick={() => onInputChange(suggestion)} className="shrink-0 rounded-full border border-stone-300 bg-stone-50 px-2.5 py-1 text-[11px] text-stone-600 hover:border-amber-500 hover:bg-amber-50">
+                {suggestion}
+              </button>
+            ))}
+          </div>
         )}
         <div className="flex gap-2 items-end">
           <textarea

@@ -603,6 +603,19 @@ export default function HomePage() {
                 },
               ]);
             }
+            if (event === "delta") {
+              const charId = String(data.characterId || "");
+              const delta = String(data.content || "");
+              if (!delta) return;
+              setMessages((prev) => {
+                const index = [...prev].reverse().findIndex(
+                  (m) => m.characterId === charId && m.streaming,
+                );
+                if (index < 0) return prev;
+                const target = prev.length - 1 - index;
+                return prev.map((m, i) => i === target ? { ...m, content: m.content + delta } : m);
+              });
+            }
             if (event === "turn_done") {
               const charId = String(data.characterId || "");
               const content = String(data.content || "");

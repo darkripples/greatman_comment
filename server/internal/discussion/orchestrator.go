@@ -70,12 +70,20 @@ func loadGroupContext() (string, error) {
 }
 
 func (o *Orchestrator) Run(ctx context.Context, characterIDs []string, question string, source prompt.SourceContext, provider string, history []HistoryItem, round int) ([]Turn, string, string, error) {
-	return o.RunSpeaker(ctx, characterIDs, question, source, provider, history, round, -1, nil)
+	return o.runSpeaker(ctx, characterIDs, question, source, provider, history, round, -1, nil, nil)
 }
 
 // RunSpeaker runs one or all speakers. speakerIndex >= 0 runs only that index; priorInRoundTurns
 // supplies earlier speakers in the same round when calling incrementally.
 func (o *Orchestrator) RunSpeaker(ctx context.Context, characterIDs []string, question string, source prompt.SourceContext, provider string, history []HistoryItem, round, speakerIndex int, priorInRoundTurns []Turn) ([]Turn, string, string, error) {
+	return o.runSpeaker(ctx, characterIDs, question, source, provider, history, round, speakerIndex, priorInRoundTurns, nil)
+}
+
+func (o *Orchestrator) RunSpeakerStream(ctx context.Context, characterIDs []string, question string, source prompt.SourceContext, provider string, history []HistoryItem, round, speakerIndex int, priorInRoundTurns []Turn, onDelta func(string) error) ([]Turn, string, string, error) {
+	return o.runSpeaker(ctx, characterIDs, question, source, provider, history, round, speakerIndex, priorInRoundTurns, onDelta)
+}
+
+func (o *Orchestrator) runSpeaker(ctx context.Context, characterIDs []string, question string, source prompt.SourceContext, provider string, history []HistoryItem, round, speakerIndex int, priorInRoundTurns []Turn, onDelta func(string) error) ([]Turn, string, string, error) {
 	if round <= 0 {
 		round = 1
 	}
@@ -123,7 +131,7 @@ func (o *Orchestrator) RunSpeaker(ctx context.Context, characterIDs []string, qu
 			continue
 		}
 		others := otherNames(ids, cid, o.characters)
-		groupExtra := strings.ReplaceAll(o.groupContext, "{others}", others)
+		groupExtra := strings.ReplaceAll(o.groupContext, "{others}", others) + "\n\n" + roundInstruction(round)
 		baseSystem := ch.BuildSystemMessage() + "\n\n" + groupExtra
 		system := baseSystem
 		var citations []rag.Citation
@@ -141,12 +149,24 @@ func (o *Orchestrator) RunSpeaker(ctx context.Context, characterIDs []string, qu
 			GroupMode:      true,
 		})
 
-		resp, prov, err := o.llm.Chat(ctx, provider, llm.ChatCompletionRequest{
+		request := llm.ChatCompletionRequest{
 			Messages: []llm.Message{
 				{Role: "system", Content: system},
 				{Role: "user", Content: userContent},
 			},
-		})
+		}
+		var resp *llm.ChatCompletionResponse
+		var prov string
+		if onDelta == nil {
+			resp, prov, err = o.llm.Chat(ctx, provider, request)
+		} else {
+			resp, prov, err = o.llm.ChatStream(ctx, provider, request, func(chunk llm.StreamChunk) error {
+				if chunk.Delta == "" {
+					return nil
+				}
+				return onDelta(chunk.Delta)
+			})
+		}
 		usedProvider = prov
 		if err != nil {
 			return turns, usedProvider, usedModel, fmt.Errorf("%s 发言失败: %w", ch.Name, err)
@@ -172,6 +192,13 @@ func (o *Orchestrator) RunSpeaker(ctx context.Context, characterIDs []string, qu
 	}
 
 	return turns, usedProvider, usedModel, nil
+}
+
+func roundInstruction(round int) string {
+	if round <= 1 {
+		return "第一轮请独立陈述立场，给出一个清晰判断，不必重复其他人的观点。"
+	}
+	return "本轮请明确回应至少一位先前发言者：指出认同或分歧，再补充你自己的判断。"
 }
 
 func historyToEntries(history []HistoryItem) []prompt.HistoryEntry {

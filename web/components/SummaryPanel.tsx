@@ -8,6 +8,24 @@ interface SummaryPanelProps {
   onCopy: () => void;
 }
 
+function MarkdownSummary({ content }: { content: string }) {
+  return (
+    <div className="space-y-2 leading-relaxed text-stone-700">
+      {content.split("\n").map((line, index) => {
+        const text = line.replace(/^#{1,3}\s+/, "").trim();
+        if (/^#{1,3}\s+/.test(line)) {
+          return <h3 key={index} className="pt-1 font-serif text-sm font-semibold text-stone-900">{text}</h3>;
+        }
+        if (/^[-*]\s+/.test(line)) {
+          return <p key={index} className="pl-4 before:mr-2 before:content-['•']">{line.replace(/^[-*]\s+/, "")}</p>;
+        }
+        if (!text) return <div key={index} className="h-1" />;
+        return <p key={index}>{line}</p>;
+      })}
+    </div>
+  );
+}
+
 export function SummaryPanel({
   content,
   loading,
@@ -47,9 +65,7 @@ export function SummaryPanel({
           </p>
         )}
         {content && (
-          <pre className="whitespace-pre-wrap font-sans leading-relaxed text-stone-700">
-            {content}
-          </pre>
+          <MarkdownSummary content={content} />
         )}
       </div>
     </section>
