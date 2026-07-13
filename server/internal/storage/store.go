@@ -307,9 +307,18 @@ func (s *Store) AddMessage(msg Message) (int64, error) {
 	if msg.CreatedAt == 0 {
 		msg.CreatedAt = time.Now().Unix()
 	}
+	var citationsJSON *string
+	if len(msg.Citations) > 0 {
+		raw, err := json.Marshal(msg.Citations)
+		if err != nil {
+			return 0, fmt.Errorf("marshal citations: %w", err)
+		}
+		encoded := string(raw)
+		citationsJSON = &encoded
+	}
 	res, err := s.db.Exec(
-		`INSERT INTO messages (conversation_id, role, character_id, character_name, era, round_num, content, provider, model, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		msg.ConversationID, msg.Role, msg.CharacterID, msg.CharacterName, msg.Era, msg.Round, msg.Content, msg.Provider, msg.Model, msg.CreatedAt,
+		`INSERT INTO messages (conversation_id, role, character_id, character_name, era, round_num, content, provider, model, citations_json, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		msg.ConversationID, msg.Role, msg.CharacterID, msg.CharacterName, msg.Era, msg.Round, msg.Content, msg.Provider, msg.Model, citationsJSON, msg.CreatedAt,
 	)
 	if err != nil {
 		return 0, err
@@ -364,8 +373,14 @@ func (s *Store) GetConversation(id string) (*Conversation, []Message, error) {
 	var msgs []Message
 	for rows.Next() {
 		var m Message
-		if err := rows.Scan(&m.ID, &m.ConversationID, &m.Role, &m.CharacterID, &m.CharacterName, &m.Era, &m.Round, &m.Content, &m.Provider, &m.Model, &m.CreatedAt); err != nil {
+		var citationsRaw sql.NullString
+		if err := rows.Scan(&m.ID, &m.ConversationID, &m.Role, &m.CharacterID, &m.CharacterName, &m.Era, &m.Round, &m.Content, &m.Provider, &m.Model, &citationsRaw, &m.CreatedAt); err != nil {
 			return nil, nil, err
+		}
+		if citationsRaw.Valid && citationsRaw.String != "" {
+			if err := json.Unmarshal([]byte(citationsRaw.String), &m.Citations); err != nil {
+				return nil, nil, fmt.Errorf("decode message citations: %w", err)
+			}
 		}
 		msgs = append(msgs, m)
 	}

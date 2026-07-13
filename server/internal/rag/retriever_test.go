@@ -2,6 +2,29 @@ package rag
 
 import "testing"
 
+func TestAugmentRanksTagsAndDeduplicatesSources(t *testing.T) {
+	r := &Retriever{byCharacter: map[string][]Passage{"c": {
+		{Title: "正文命中", Text: "这是关于知行合一的材料", Source: "same"},
+		{Title: "标签命中", Text: "材料", Tags: []string{"知行合一"}, Source: "same"},
+		{Title: "另一来源", Text: "知行合一", Source: "other"},
+	}}}
+	_, citations := r.Augment("c", "怎样做到知行合一", "", "base")
+	if len(citations) != 2 {
+		t.Fatalf("got %d citations, want 2", len(citations))
+	}
+	if citations[0].Title != "标签命中" {
+		t.Fatalf("got first %q, want tag match", citations[0].Title)
+	}
+}
+
+func TestAugmentReturnsNoCitationsWithoutMatch(t *testing.T) {
+	r := &Retriever{byCharacter: map[string][]Passage{"c": {{Title: "历史", Text: "旧事", Source: "s"}}}}
+	prompt, citations := r.Augment("c", "量子计算", "", "base")
+	if prompt != "base" || len(citations) != 0 {
+		t.Fatalf("unexpected result: %q %+v", prompt, citations)
+	}
+}
+
 func TestAugmentSystemPrompt_matchesTags(t *testing.T) {
 	r := &Retriever{
 		byCharacter: map[string][]Passage{

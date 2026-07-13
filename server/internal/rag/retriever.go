@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 )
 
@@ -83,17 +85,19 @@ func (r *Retriever) Augment(characterID, question, sourceTitle, base string) (st
 	}
 	scores := make([]scored, 0, len(passages))
 	for _, p := range passages {
-		text := strings.ToLower(p.Title + " " + p.Text + " " + strings.Join(p.Tags, " "))
 		score := 0
 		for _, t := range tokens {
-			if strings.Contains(text, t) {
+			if strings.Contains(strings.ToLower(p.Text), t) {
 				score++
+			}
+			if strings.Contains(strings.ToLower(p.Title), t) {
+				score += 3
 			}
 		}
 		for _, tag := range p.Tags {
 			tagLower := strings.ToLower(strings.TrimSpace(tag))
 			if tagLower != "" && strings.Contains(query, tagLower) {
-				score += 2
+				score += 5
 			}
 		}
 		if score > 0 {
@@ -103,16 +107,28 @@ func (r *Retriever) Augment(characterID, question, sourceTitle, base string) (st
 	if len(scores) == 0 {
 		return base, nil
 	}
-	for i := 0; i < len(scores); i++ {
-		for j := i + 1; j < len(scores); j++ {
-			if scores[j].score > scores[i].score {
-				scores[i], scores[j] = scores[j], scores[i]
-			}
+	sort.SliceStable(scores, func(i, j int) bool {
+		if scores[i].score != scores[j].score {
+			return scores[i].score > scores[j].score
+		}
+		return scores[i].p.Title < scores[j].p.Title
+	})
+	selected := make([]scored, 0, topK)
+	seenSources := make(map[string]bool)
+	for _, candidate := range scores {
+		source := strings.TrimSpace(candidate.p.Source)
+		if source != "" && seenSources[source] {
+			continue
+		}
+		if source != "" {
+			seenSources[source] = true
+		}
+		selected = append(selected, candidate)
+		if len(selected) == topK {
+			break
 		}
 	}
-	if len(scores) > topK {
-		scores = scores[:topK]
-	}
+	scores = selected
 
 	citations := make([]Citation, 0, len(scores))
 	var b strings.Builder
@@ -142,24 +158,33 @@ func (r *Retriever) AugmentSystemPrompt(characterID, question, sourceTitle, base
 }
 
 func tokenize(s string) []string {
-	s = strings.Map(func(r rune) rune {
-		if r >= 'A' && r <= 'Z' {
-			return r + ('a' - 'A')
+	seen := make(map[string]bool)
+	var tokens []string
+	for _, part := range strings.FieldsFunc(strings.ToLower(s), func(r rune) bool {
+		return unicode.IsSpace(r) || unicode.IsPunct(r)
+	}) {
+		runes := []rune(strings.TrimSpace(part))
+		if len(runes) < 2 {
+			continue
 		}
-		return r
-	}, s)
-	parts := strings.FieldsFunc(s, func(r rune) bool {
-		return r == ' ' || r == '，' || r == '。' || r == '？' || r == '！' || r == '、' || r == ',' || r == '.' || r == '?' || r == '!'
-	})
-	out := make([]string, 0, len(parts))
-	for _, p := range parts {
-		p = strings.TrimSpace(p)
-		if utf8.RuneCountInString(p) >= 2 {
-			out = append(out, p)
+		addToken(&tokens, seen, string(runes))
+		for i := 0; i+1 < len(runes); i++ {
+			if isCJK(runes[i]) && isCJK(runes[i+1]) {
+				addToken(&tokens, seen, string(runes[i:i+2]))
+			}
 		}
 	}
-	return out
+	return tokens
 }
+
+func addToken(tokens *[]string, seen map[string]bool, token string) {
+	if token != "" && !seen[token] {
+		seen[token] = true
+		*tokens = append(*tokens, token)
+	}
+}
+
+func isCJK(r rune) bool { return r >= 0x4E00 && r <= 0x9FFF }
 
 func truncateRunes(s string, max int) string {
 	if utf8.RuneCountInString(s) <= max {
