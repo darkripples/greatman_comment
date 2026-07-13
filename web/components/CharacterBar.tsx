@@ -11,6 +11,7 @@ interface CharacterBarProps {
   selectedGroupIds: string[];
   onSelectSingle: (item: CharacterItem) => void;
   onToggleGroup: (id: string) => void;
+  onShowDetail: (item: CharacterItem) => void;
 }
 
 export function CharacterBar({
@@ -20,6 +21,7 @@ export function CharacterBar({
   selectedGroupIds,
   onSelectSingle,
   onToggleGroup,
+  onShowDetail,
 }: CharacterBarProps) {
   const toggleGroup = (id: string) => {
     if (selectedGroupIds.includes(id)) {
@@ -51,32 +53,47 @@ export function CharacterBar({
                 ? selectedGroupIds.includes(c.id)
                 : c.id === selectedId;
             return (
-              <button
+              <div
                 key={c.id}
-                type="button"
-                onClick={() =>
-                  mode === "group" ? toggleGroup(c.id) : onSelectSingle(c)
-                }
-                className={`shrink-0 min-w-[140px] max-w-[200px] text-left rounded-xl border px-3 py-2 transition border-l-4 ${characterAccent(c.id)} ${
+                className={`shrink-0 min-w-[140px] max-w-[200px] rounded-xl border transition border-l-4 ${characterAccent(c.id)} ${
                   active
                     ? "border-stone-800 bg-stone-900 text-stone-50 shadow-sm"
                     : "border-stone-200 bg-[#faf8f5] hover:border-stone-400 hover:bg-white"
                 }`}
               >
-                <div className="flex items-baseline justify-between gap-1">
-                  <span className="text-sm font-medium">{c.name}</span>
-                  <span
-                    className={`text-[10px] ${active ? "text-stone-400" : "text-stone-500"}`}
-                  >
-                    {c.era}
-                  </span>
-                </div>
-                <p
-                  className={`text-[11px] mt-0.5 line-clamp-1 ${active ? "text-stone-300" : "text-stone-600"}`}
+                <button
+                  type="button"
+                  onClick={() =>
+                    mode === "group" ? toggleGroup(c.id) : onSelectSingle(c)
+                  }
+                  className="w-full text-left rounded-xl px-3 py-2"
                 >
-                  {c.summary}
-                </p>
-              </button>
+                  <div className="flex items-baseline justify-between gap-1">
+                    <span className="text-sm font-medium">{c.name}</span>
+                    <span
+                      className={`text-[10px] ${active ? "text-stone-400" : "text-stone-500"}`}
+                    >
+                      {c.era}
+                    </span>
+                  </div>
+                  <p
+                    className={`text-[11px] mt-0.5 line-clamp-1 ${active ? "text-stone-300" : "text-stone-600"}`}
+                  >
+                    {c.summary}
+                  </p>
+                </button>
+                <div className="px-3 pb-2 -mt-1">
+                  <button
+                    type="button"
+                    onClick={() => onShowDetail(c)}
+                    className={`text-[10px] underline underline-offset-2 ${
+                      active ? "text-stone-400 hover:text-stone-200" : "text-stone-500 hover:text-stone-800"
+                    }`}
+                  >
+                    详情
+                  </button>
+                </div>
+              </div>
             );
           })}
           {items.length === 0 && (

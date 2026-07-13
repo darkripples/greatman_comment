@@ -1,8 +1,9 @@
 "use client";
 
 import type { ChatMessage, CharacterItem } from "@/lib/types";
-import { MAX_GROUP_MEMBERS, characterAccent } from "@/lib/types";
+import { MAX_GROUP_MEMBERS, characterAccent, characterBg } from "@/lib/types";
 import type { ChatMode } from "./ModeToggle";
+import { CitationBlock } from "./CitationBlock";
 
 interface ChatWindowProps {
   mode: ChatMode;
@@ -18,6 +19,18 @@ interface ChatWindowProps {
   onInputChange: (value: string) => void;
   onSend: () => void;
   onNewDiscussion: () => void;
+}
+
+function RoundDivider({ round }: { round: number }) {
+  return (
+    <div className="flex items-center gap-3 py-2">
+      <div className="flex-1 h-px bg-stone-200" />
+      <span className="text-[10px] text-stone-500 font-serif shrink-0">
+        第 {round} 轮圆桌
+      </span>
+      <div className="flex-1 h-px bg-stone-200" />
+    </div>
+  );
 }
 
 export function ChatWindow({
@@ -40,12 +53,14 @@ export function ChatWindow({
       ? groupCharacters?.map((c) => c.name).join("、") || "未选人物"
       : characterName || "未选人物";
 
+  let lastRound = 0;
+
   return (
     <section className="flex flex-col h-full min-h-0 rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden">
       <header className="px-4 py-3 border-b border-stone-200 bg-stone-50/80 flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-medium text-stone-800">
+            <p className="text-sm font-medium text-stone-800 font-serif">
               {mode === "group" ? "群聊讨论" : "对话"}
             </p>
             <span className="text-[11px] px-2 py-0.5 rounded-full bg-stone-200/80 text-stone-700">
@@ -58,7 +73,7 @@ export function ChatWindow({
             </p>
           ) : (
             <p className="text-xs text-stone-400 mt-1.5">
-              在上方选择人物与热榜议题，或直接输入问题
+              选择精选场景，或从热榜挑选议题开始
             </p>
           )}
         </div>
@@ -74,43 +89,70 @@ export function ChatWindow({
       <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3 bg-[#faf8f5]">
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center text-center px-6 py-8">
-            <p className="text-sm text-stone-600 font-serif">跨越时空的对话</p>
-            <p className="text-xs text-stone-500 mt-2 max-w-sm leading-relaxed">
+            <p className="text-base text-stone-700 font-serif">跨越时空的对话</p>
+            <p className="text-xs text-stone-500 mt-2 max-w-md leading-relaxed">
+              从上方「精选场景」一键开始，或点击「观看精选演示」无需 API Key 即可体验。
+            </p>
+            <p className="text-xs text-stone-400 mt-2 max-w-md leading-relaxed">
               {mode === "group"
-                ? `在上方选择 2–${MAX_GROUP_MEMBERS} 位群聊成员，点击热榜议题或输入问题开始。`
-                : "在上方选择一位历史人物，点击热榜议题或输入问题即可开始。"}
+                ? `群聊模式：选择 2–${MAX_GROUP_MEMBERS} 位人物，看不同价值观如何碰撞。`
+                : "单人模式：选一位历史人物，以有限视角点评今日议题。"}
             </p>
           </div>
         )}
-        {messages.map((m) => (
-          <div
-            key={m.id}
-            className={`max-w-[92%] md:max-w-xl rounded-2xl px-3.5 py-2.5 text-sm whitespace-pre-wrap leading-relaxed ${
-              m.role === "user"
-                ? "ml-auto bg-stone-900 text-stone-50"
-                : `mr-auto bg-white border border-stone-200 text-stone-800 border-l-4 ${characterAccent(m.characterId)}`
-            }`}
-          >
-            {m.role === "assistant" && m.characterName && (
-              <p className="text-xs font-medium text-stone-600 mb-1.5">
-                {m.characterName}
-                {m.era ? ` · ${m.era}` : ""}
-                {m.round ? ` · 第${m.round}轮` : ""}
-              </p>
-            )}
-            {m.content}
-            {m.streaming && (
-              <span className="inline-block w-1.5 h-4 ml-0.5 bg-stone-400 animate-pulse align-middle" />
-            )}
-            {m.meta && (
-              <p
-                className={`text-[10px] mt-2 ${m.meta === "error" ? "text-red-600" : "opacity-60"}`}
+        {messages.map((m) => {
+          const showRoundDivider =
+            mode === "group" &&
+            m.round != null &&
+            m.round > 0 &&
+            m.round !== lastRound &&
+            (m.role === "user" || m.characterName);
+          if (showRoundDivider && m.round != null) {
+            lastRound = m.round;
+          }
+          return (
+            <div key={m.id}>
+              {showRoundDivider && m.round != null && (
+                <RoundDivider round={m.round} />
+              )}
+              <div
+                className={`max-w-[92%] md:max-w-xl rounded-2xl px-3.5 py-2.5 text-sm whitespace-pre-wrap leading-relaxed ${
+                  m.role === "user"
+                    ? "ml-auto bg-stone-900 text-stone-50"
+                    : `mr-auto bg-white border border-stone-200 text-stone-800 border-l-4 ${characterAccent(m.characterId)}`
+                }`}
               >
-                {m.meta === "error" ? "错误" : m.meta}
-              </p>
-            )}
-          </div>
-        ))}
+                {m.role === "assistant" && m.characterName && (
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span
+                      className={`inline-flex w-6 h-6 rounded-full text-[10px] text-white items-center justify-center shrink-0 ${characterBg(m.characterId)}`}
+                    >
+                      {m.characterName.slice(0, 1)}
+                    </span>
+                    <p className="text-xs font-medium text-stone-600">
+                      {m.characterName}
+                      {m.era ? ` · ${m.era}` : ""}
+                    </p>
+                  </div>
+                )}
+                {m.content}
+                {m.streaming && (
+                  <span className="inline-block w-1.5 h-4 ml-0.5 bg-stone-400 animate-pulse align-middle" />
+                )}
+                {m.meta && (
+                  <p
+                    className={`text-[10px] mt-2 ${m.meta === "error" ? "text-red-600" : m.meta === "demo" ? "text-amber-700" : "opacity-60"}`}
+                  >
+                    {m.meta === "error" ? "错误" : m.meta === "demo" ? "精选演示回放" : m.meta}
+                  </p>
+                )}
+                {m.role === "assistant" && (
+                  <CitationBlock citations={m.citations} />
+                )}
+              </div>
+            </div>
+          );
+        })}
         {loading && (
           <p className="text-xs text-stone-500 animate-pulse px-1">
             {loadingHint || "人物思考中…"}
@@ -129,8 +171,8 @@ export function ChatWindow({
             rows={2}
             placeholder={
               mode === "group"
-                ? "输入追问，或从热榜选择议题…"
-                : "输入问题，或从热榜选择议题…"
+                ? "输入追问，或从精选场景开始…"
+                : "输入问题，或从精选场景开始…"
             }
             className="flex-1 resize-none rounded-xl border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600/25"
             onKeyDown={(e) => {
@@ -143,7 +185,7 @@ export function ChatWindow({
           <button
             type="button"
             disabled={loading || !input.trim() || !canSend}
-            title={!canSend ? "请先在设置中选择人物" : undefined}
+            title={!canSend ? "请先在上方选择人物" : undefined}
             onClick={onSend}
             className="shrink-0 rounded-xl bg-stone-900 text-white px-5 text-sm font-medium disabled:opacity-40 min-h-[44px] hover:bg-stone-800 transition"
           >

@@ -26,11 +26,12 @@ type HistoryItem struct {
 }
 
 type Turn struct {
-	CharacterID string `json:"characterId"`
-	Name        string `json:"name"`
-	Era         string `json:"era"`
-	Content     string `json:"content"`
-	Round       int    `json:"round"`
+	CharacterID string         `json:"characterId"`
+	Name        string         `json:"name"`
+	Era         string         `json:"era"`
+	Content     string         `json:"content"`
+	Round       int            `json:"round"`
+	Citations   []rag.Citation `json:"citations,omitempty"`
 }
 
 type Orchestrator struct {
@@ -125,8 +126,9 @@ func (o *Orchestrator) RunSpeaker(ctx context.Context, characterIDs []string, qu
 		groupExtra := strings.ReplaceAll(o.groupContext, "{others}", others)
 		baseSystem := ch.BuildSystemMessage() + "\n\n" + groupExtra
 		system := baseSystem
+		var citations []rag.Citation
 		if o.retriever != nil {
-			system = o.retriever.AugmentSystemPrompt(ch.ID, question, source.Title, baseSystem)
+			system, citations = o.retriever.Augment(ch.ID, question, source.Title, baseSystem)
 		}
 
 		userContent := prompt.BuildUserContent(prompt.BuildOptions{
@@ -164,6 +166,7 @@ func (o *Orchestrator) RunSpeaker(ctx context.Context, characterIDs []string, qu
 			Era:         ch.Era,
 			Content:     content,
 			Round:       round,
+			Citations:   citations,
 		})
 		priorInRound = append(priorInRound, fmt.Sprintf("%s：%s", ch.Name, content))
 	}

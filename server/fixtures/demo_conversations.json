@@ -1,0 +1,151 @@
+{
+  "demos": [
+    {
+      "id": "luxun-ai-writing",
+      "scenarioId": "luxun-ai-writing",
+      "sourceTitle": "如果今天鲁迅还在，他会怎么看待 AI 写作？",
+      "mode": "single",
+      "characterIds": [
+        "luxun"
+      ],
+      "messages": [
+        {
+          "role": "user",
+          "content": "今日有人用 AI 代写杂文、模仿名家口吻，你怎么看这种「伪声音」？",
+          "round": 1
+        },
+        {
+          "role": "assistant",
+          "characterId": "luxun",
+          "characterName": "鲁迅",
+          "era": "1881-1936",
+          "round": 1,
+          "content": "这「AI 写作」是何物，我不可确知。但模仿名家口吻、批量产出文字，倒让我想起旧时有些文章，不是出自本心，而是替人代言、代人立言。\n\n声音若是假的，启蒙便也是假的。铁屋子里若响起的不是活人的呐喊，而是录好的回音，那回声再多，也撞不破墙壁。写作若不为直面现实、唤醒麻木，而只为求快、求像、求流量，便与看客心理无异——大家图个热闹，并不真想知道墙在哪里。\n\n我并非反对新工具。电报、印刷术也曾是新物。但要紧的是：谁在说话，为何而说，说的可是真心话？若把思考一并交给机器，人便只剩「输入题目、等待答案」，这与我当年所批判的「做毫无意义的示众的材料」，又有何异？"
+        }
+      ]
+    },
+    {
+      "id": "lihongzhang-rules",
+      "scenarioId": "lihongzhang-rules",
+      "sourceTitle": "如何看待国际赛事中的判罚争议与规则解释？",
+      "mode": "single",
+      "characterIds": [
+        "lihongzhang"
+      ],
+      "messages": [
+        {
+          "role": "user",
+          "content": "洋人定规矩、我们被迫接招，这种局面与当年洋务外交有何相似？",
+          "round": 1
+        },
+        {
+          "role": "assistant",
+          "characterId": "lihongzhang",
+          "characterName": "李鸿章",
+          "era": "1823-1901",
+          "round": 1,
+          "content": "你所说的「国际规则」，我闻其名而不详其制，然其理我不陌生。当年通商、订约、设海关，哪一项不是洋人先定章程，我再逐条力争？有时争得一寸，已是举国之力。\n\n规则本身未必全恶，恶在规则由谁定、解释权在谁手。洋务以「中体西用」为纲，不是盲目拒斥，而是知彼知己、徐图自强。若只会在局外骂「不公」，却不研究章程、不练本事、不办实业，便与当年空言清议者相近。\n\n我一生办厂、开埠、出访，深知：弱国无外交，弱国亦难争规则。与其只问判罚是否偏心，不如问我们可曾把人家的玩法学透、把自家的底子练硬。此为我不可确知之世事后话，然理或不改。"
+        }
+      ]
+    },
+    {
+      "id": "sushi-zhuangzi-burnout",
+      "scenarioId": "sushi-zhuangzi-burnout",
+      "sourceTitle": "「躺平」是一种消极还是清醒？",
+      "mode": "group",
+      "characterIds": [
+        "sushi",
+        "zhuangzi"
+      ],
+      "messages": [
+        {
+          "role": "user",
+          "content": "今人常言内卷与躺平，二位如何看待在功名与逍遥之间的取舍？",
+          "round": 1
+        },
+        {
+          "role": "assistant",
+          "characterId": "sushi",
+          "characterName": "苏轼",
+          "era": "1037-1101",
+          "round": 1,
+          "content": "「内卷」「躺平」这些词，我未能尽晓。然功名与逍遥之争，我这一生倒是历过。被贬黄州，也曾心灰意冷；后来想想，人生如梦，一樽还酹江月，何必把得失攥得太紧？\n\n但若因此全然躺倒，不再做事、不再担当，亦非我所取。我仍要写文章、修水利、教百姓，只是在风雨里学会宽心。所谓清醒，不是逃避，是在不可为处少执念，在可为处尽力而为。"
+        },
+        {
+          "role": "assistant",
+          "characterId": "zhuangzi",
+          "characterName": "庄子",
+          "era": "约前369-前286",
+          "round": 1,
+          "content": "子瞻说得热闹，我且从旁补一句。世人争于席上，如蚁负粒，愈负愈重，谓之「内卷」乎？鹏徙南冥，水击三千里，非不为也，是其翼广，不在粒米间争。\n\n躺卧非必消极。若心为物役，纵站立亦是躺；若心游物外，纵卧于泥，亦逍遥。要紧不在「躺」或「卷」，在知「无用之用」。名者，相也；功者，累也。能安其命而不强求，或反是清醒。"
+        }
+      ]
+    },
+    {
+      "id": "public-opinion-roundtable",
+      "scenarioId": "public-opinion-roundtable",
+      "sourceTitle": "电影细节瑕疵引发舆论风暴，公众反应是否过度？",
+      "mode": "group",
+      "characterIds": [
+        "wangyangming",
+        "luxun",
+        "wuzetian"
+      ],
+      "messages": [
+        {
+          "role": "user",
+          "content": "一部影片因细节瑕疵遭全网声讨，这等现象你们各自如何看？",
+          "round": 1
+        },
+        {
+          "role": "assistant",
+          "characterId": "wangyangming",
+          "characterName": "王阳明",
+          "era": "1472-1529",
+          "round": 1,
+          "content": "「全网声讨」是何规模，我不能尽知。但众口汹汹，往往不只在瑕疵本身，而在人心所积。致良知，先问自身：批评是为公义，还是为泄愤？知而不行，只是未知；若只随大流骂，却不求真伪，便是「破山中贼易，破心中贼难」。"
+        },
+        {
+          "role": "assistant",
+          "characterId": "luxun",
+          "characterName": "鲁迅",
+          "era": "1881-1936",
+          "round": 1,
+          "content": "细节若有错，指出便是。但风暴一起，许多人并不真看影片，只借一个由头，做看客、做传声筒。国民性里最可患者，是集体狂欢式的道德优越——瑕疵成了靶子，人人皆可射击，射完便散，并不追问更大的问题：我们的公共讨论，为何总易走向极端？"
+        },
+        {
+          "role": "assistant",
+          "characterId": "wuzetian",
+          "characterName": "武则天",
+          "era": "624-705",
+          "round": 1,
+          "content": "舆论如洪水，可载舟亦可覆舟。为君者知：民言不可尽堵，亦不可尽纵。若瑕疵被放大为攻讦之器，背后往往是权力、利益与情绪的合流。治世当辨真伪，不以一人之怒定是非，亦不因众怒而失判断。今日之「网」，我不可确知，然众声喧哗则一也。"
+        }
+      ]
+    },
+    {
+      "id": "zhugeliang-talent",
+      "scenarioId": "zhugeliang-talent",
+      "sourceTitle": "职场内卷，古人会怎么看？",
+      "mode": "single",
+      "characterIds": [
+        "zhugeliang"
+      ],
+      "messages": [
+        {
+          "role": "user",
+          "content": "今人论团队，常言「内卷」与「躺平」，以你治蜀经验，用人之道在何处？",
+          "round": 1
+        },
+        {
+          "role": "assistant",
+          "characterId": "zhugeliang",
+          "characterName": "诸葛亮",
+          "era": "181-234",
+          "round": 1,
+          "content": "「内卷」「躺平」，字义我不能尽晓，然人众事繁、相争于狭处，古今或有相似。治蜀十年，我知用人不在使人互相倾轧，而在各尽其才、各安其位。\n\n将帅当明赏罚、定章程，使有功者有所劝，有过者有所惩，而非令众人空耗于无益之争。若上下但知内斗、不知外患，则国未破而力先竭。马谡失街亭，我斩之，非好杀，是为军法与大局。\n\n躺平若指不担当，则不可；若指知止不妄求，则近「谨慎」二字。为将者，当使众人有事做、有路走，而不是逼之在狭路相搏。"
+        }
+      ]
+    }
+  ]
+}

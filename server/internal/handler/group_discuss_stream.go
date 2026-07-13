@@ -110,7 +110,7 @@ func (h *GroupDiscussStreamHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 		if _, err := store.AddMessage(storage.Message{
 			ConversationID: convID, Role: "assistant", CharacterID: t.CharacterID,
 			CharacterName: t.Name, Era: t.Era, Content: content,
-			Provider: provider, Model: model, Round: t.Round,
+			Provider: provider, Model: model, Round: t.Round, Citations: citationsToStorage(t.Citations),
 		}); err != nil {
 			_ = sse.Event("error", map[string]string{"message": err.Error()})
 			return
@@ -123,6 +123,7 @@ func (h *GroupDiscussStreamHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 			"era":         t.Era,
 			"content":     content,
 			"round":       t.Round,
+			"citations":   citationsToJSON(t.Citations),
 		})
 	}
 

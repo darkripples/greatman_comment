@@ -105,5 +105,10 @@ func (a *App) Retriever() *rag.Retriever {
 }
 
 func (a *App) AugmentSystem(characterID, question, sourceTitle, base string) string {
-	return a.Retriever().AugmentSystemPrompt(characterID, question, sourceTitle, base)
+	prompt, _ := a.Retriever().Augment(characterID, question, sourceTitle, base)
+	return prompt
+}
+
+func (a *App) AugmentSystemWithCitations(characterID, question, sourceTitle, base string) (string, []rag.Citation) {
+	return a.Retriever().Augment(characterID, question, sourceTitle, base)
 }

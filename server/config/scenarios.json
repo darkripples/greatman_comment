@@ -1,0 +1,84 @@
+﻿{
+  "scenarios": [
+    {
+      "id": "luxun-ai-writing",
+      "title": "鲁迅 × AI 写作伦理",
+      "hook": "若铁屋子里的呐喊遇上机器写作，他会如何看？",
+      "mode": "single",
+      "characterIds": ["luxun"],
+      "hotItem": {
+        "title": "如果今天鲁迅还在，他会怎么看待 AI 写作？",
+        "url": "https://www.zhihu.com/question/mock-ai-writing",
+        "excerpt": "AI 与人文创作边界",
+        "detail_text": "讨论 AI 是否会替代创作者，以及人文表达的价值。"
+      },
+      "sampleQuestion": "今日有人用 AI 代写杂文、模仿名家口吻，你怎么看这种「伪声音」？",
+      "expectedAngle": "国民性、启蒙、伪声音",
+      "demoId": "luxun-ai-writing"
+    },
+    {
+      "id": "lihongzhang-rules",
+      "title": "李鸿章 × 国际规则与本土困境",
+      "hook": "洋务时代的外交家，如何看今日「规则之争」？",
+      "mode": "single",
+      "characterIds": ["lihongzhang"],
+      "hotItem": {
+        "title": "如何看待国际赛事中的判罚争议与规则解释？",
+        "url": "https://www.zhihu.com/question/mock-fifa-rules",
+        "excerpt": "规则、公平与本土立场",
+        "detail_text": "国际规则与本土利益之间的张力引发广泛讨论。"
+      },
+      "sampleQuestion": "洋人定规矩、我们被迫接招，这种局面与当年洋务外交有何相似？",
+      "expectedAngle": "洋务、外交、中体西用",
+      "demoId": "lihongzhang-rules"
+    },
+    {
+      "id": "sushi-zhuangzi-burnout",
+      "title": "苏轼 / 庄子 × 内卷与松弛",
+      "hook": "一个入世豁达，一个逍遥齐物——谁更懂「躺平」？",
+      "mode": "group",
+      "characterIds": ["sushi", "zhuangzi"],
+      "hotItem": {
+        "title": "「躺平」是一种消极还是清醒？",
+        "url": "https://www.zhihu.com/question/mock-tangping",
+        "excerpt": "人生选择与时代压力",
+        "detail_text": "庄子、阳明与当代青年的不同回答。"
+      },
+      "sampleQuestion": "今人常言内卷与躺平，二位如何看待在功名与逍遥之间的取舍？",
+      "expectedAngle": "豁达、齐物、安身立命",
+      "demoId": "sushi-zhuangzi-burnout"
+    },
+    {
+      "id": "public-opinion-roundtable",
+      "title": "王阳明 / 鲁迅 / 武则天 × 舆论风暴",
+      "hook": "电影瑕疵引发全网声讨——三人各执一词的圆桌",
+      "mode": "group",
+      "characterIds": ["wangyangming", "luxun", "wuzetian"],
+      "hotItem": {
+        "title": "电影细节瑕疵引发舆论风暴，公众反应是否过度？",
+        "url": "https://www.zhihu.com/question/mock-public-opinion",
+        "excerpt": "舆论、艺术与公共讨论",
+        "detail_text": "一部作品的技术瑕疵为何能掀起全民批判？"
+      },
+      "sampleQuestion": "一部影片因细节瑕疵遭全网声讨，这等现象你们各自如何看？",
+      "expectedAngle": "致良知、国民性、权力与舆论",
+      "demoId": "public-opinion-roundtable"
+    },
+    {
+      "id": "zhugeliang-talent",
+      "title": "诸葛亮 × 组织与用人",
+      "hook": "鞠躬尽瘁的丞相，如何点评今日团队管理？",
+      "mode": "single",
+      "characterIds": ["zhugeliang"],
+      "hotItem": {
+        "title": "职场内卷，古人会怎么看？",
+        "url": "https://www.zhihu.com/question/mock-work-culture",
+        "excerpt": "仕进、功名与安身立命",
+        "detail_text": "从科举到现代职场的类比讨论。"
+      },
+      "sampleQuestion": "今人论团队，常言「内卷」与「躺平」，以你治蜀经验，用人之道在何处？",
+      "expectedAngle": "筹谋、用人、大局",
+      "demoId": "zhugeliang-talent"
+    }
+  ]
+}

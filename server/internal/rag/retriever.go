@@ -12,10 +12,17 @@ import (
 const maxPassageRunes = 200
 const topK = 3
 
+type Citation struct {
+	Title   string `json:"title"`
+	Source  string `json:"source,omitempty"`
+	Excerpt string `json:"excerpt"`
+}
+
 type Passage struct {
-	Title string   `json:"title"`
-	Text  string   `json:"text"`
-	Tags  []string `json:"tags"`
+	Title  string   `json:"title"`
+	Text   string   `json:"text"`
+	Tags   []string `json:"tags"`
+	Source string   `json:"source,omitempty"`
 }
 
 type sourceFile struct {
@@ -56,18 +63,18 @@ func NewRetriever() (*Retriever, error) {
 	return r, nil
 }
 
-func (r *Retriever) AugmentSystemPrompt(characterID, question, sourceTitle, base string) string {
+func (r *Retriever) Augment(characterID, question, sourceTitle, base string) (string, []Citation) {
 	if r == nil {
-		return base
+		return base, nil
 	}
 	passages := r.byCharacter[characterID]
 	if len(passages) == 0 {
-		return base
+		return base, nil
 	}
 	query := strings.ToLower(question + " " + sourceTitle)
 	tokens := tokenize(query)
 	if len(tokens) == 0 {
-		return base
+		return base, nil
 	}
 
 	type scored struct {
@@ -94,7 +101,7 @@ func (r *Retriever) AugmentSystemPrompt(characterID, question, sourceTitle, base
 		}
 	}
 	if len(scores) == 0 {
-		return base
+		return base, nil
 	}
 	for i := 0; i < len(scores); i++ {
 		for j := i + 1; j < len(scores); j++ {
@@ -107,6 +114,7 @@ func (r *Retriever) AugmentSystemPrompt(characterID, question, sourceTitle, base
 		scores = scores[:topK]
 	}
 
+	citations := make([]Citation, 0, len(scores))
 	var b strings.Builder
 	b.WriteString(base)
 	b.WriteString("\n\n【可参考史料片段，勿捏造未列出内容】\n")
@@ -119,8 +127,18 @@ func (r *Retriever) AugmentSystemPrompt(characterID, question, sourceTitle, base
 			b.WriteString(text)
 			b.WriteString("\n")
 		}
+		citations = append(citations, Citation{
+			Title:   s.p.Title,
+			Source:  s.p.Source,
+			Excerpt: text,
+		})
 	}
-	return b.String()
+	return b.String(), citations
+}
+
+func (r *Retriever) AugmentSystemPrompt(characterID, question, sourceTitle, base string) string {
+	prompt, _ := r.Augment(characterID, question, sourceTitle, base)
+	return prompt
 }
 
 func tokenize(s string) []string {

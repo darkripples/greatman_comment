@@ -77,7 +77,7 @@ func (h *ChatStreamHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		History: historyToPromptEntries(promptHistory), HistorySummary: historySummary,
 		Round: round, GroupMode: false,
 	})
-	system := h.app.AugmentSystem(ch.ID, req.Question, req.SourceTitle, ch.BuildSystemMessage())
+	system, citations := h.app.AugmentSystemWithCitations(ch.ID, req.Question, req.SourceTitle, ch.BuildSystemMessage())
 	llmReq := llm.ChatCompletionRequest{
 		Messages: []llm.Message{
 			{Role: "system", Content: system},
@@ -125,17 +125,18 @@ func (h *ChatStreamHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if _, err := store.AddMessage(storage.Message{
 		ConversationID: convID, Role: "assistant", CharacterID: ch.ID,
 		CharacterName: ch.Name, Era: ch.Era, Content: content,
-		Provider: usedProvider, Model: model, Round: round,
+		Provider: usedProvider, Model: model, Round: round, Citations: citationsToStorage(citations),
 	}); err != nil {
 		_ = sse.Event("error", map[string]string{"message": err.Error()})
 		return
 	}
 	_ = store.TouchConversation(convID)
 
-	_ = sse.Event("done", map[string]string{
+	_ = sse.Event("done", map[string]any{
 		"conversationId": convID,
 		"content":        content,
 		"provider":       usedProvider,
 		"model":          model,
+		"citations":      citationsToJSON(citations),
 	})
 }

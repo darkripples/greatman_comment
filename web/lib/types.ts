@@ -25,6 +25,41 @@ export interface CharacterItem {
   name: string;
   era: string;
   summary: string;
+  portrait?: string;
+  tags?: string[];
+  keyWorks?: string[];
+  fitTopics?: string[];
+  intro?: string;
+}
+
+export interface ScenarioItem {
+  id: string;
+  title: string;
+  hook: string;
+  mode: "single" | "group";
+  characterIds: string[];
+  hotItem: HotItem;
+  sampleQuestion: string;
+  expectedAngle?: string;
+  demoId?: string;
+}
+
+export interface DemoMessage {
+  role: "user" | "assistant";
+  characterId?: string;
+  characterName?: string;
+  era?: string;
+  content: string;
+  round?: number;
+}
+
+export interface DemoConversation {
+  id: string;
+  scenarioId?: string;
+  sourceTitle: string;
+  mode: "single" | "group";
+  characterIds?: string[];
+  messages: DemoMessage[];
 }
 
 export interface ProviderItem {
@@ -57,6 +92,12 @@ export interface GroupDiscussResult {
   model: string;
 }
 
+export interface Citation {
+  title: string;
+  source?: string;
+  excerpt: string;
+}
+
 export interface ChatMessage {
   id: string;
   role: "user" | "assistant";
@@ -67,6 +108,7 @@ export interface ChatMessage {
   round?: number;
   meta?: string;
   streaming?: boolean;
+  citations?: Citation[];
 }
 
 export interface ConversationSummary {
@@ -94,4 +136,19 @@ const CHARACTER_COLORS: Record<string, string> = {
 export function characterAccent(id?: string) {
   if (!id) return "border-l-stone-400";
   return CHARACTER_COLORS[id] ?? "border-l-stone-500";
+}
+
+export function characterBg(id?: string) {
+  const map: Record<string, string> = {
+    luxun: "bg-stone-800",
+    sushi: "bg-teal-700",
+    lihongzhang: "bg-amber-800",
+    libai: "bg-indigo-700",
+    zhugeliang: "bg-slate-700",
+    wangyangming: "bg-emerald-800",
+    zhuangzi: "bg-cyan-700",
+    wuzetian: "bg-rose-800",
+  };
+  if (!id) return "bg-stone-500";
+  return map[id] ?? "bg-stone-600";
 }

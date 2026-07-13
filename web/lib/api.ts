@@ -11,6 +11,8 @@ import type {
   HotItem,
   ProviderItem,
   SearchItem,
+  ScenarioItem,
+  DemoConversation,
 } from "./types";
 
 async function request<T>(
@@ -82,6 +84,24 @@ export async function fetchCharacters(settings: AppSettings) {
   const data = await request<{ items: CharacterItem[] }>(
     settings,
     "/api/characters",
+  );
+  return data.items ?? [];
+}
+
+
+
+export async function fetchScenarios(settings: AppSettings) {
+  const data = await request<{ items: ScenarioItem[] }>(
+    settings,
+    "/api/scenarios",
+  );
+  return data.items ?? [];
+}
+
+export async function fetchDemos(settings: AppSettings) {
+  const data = await request<{ items: DemoConversation[] }>(
+    settings,
+    "/api/demos",
   );
   return data.items ?? [];
 }
@@ -193,6 +213,7 @@ export async function fetchConversations(settings: AppSettings, limit = 20) {
 export async function fetchConversation(settings: AppSettings, id: string) {
   return request<{
     conversation: ConversationSummary;
+    summary?: { conversationId: string; content: string; createdAt: number } | null;
     messages: Array<{
       id: number;
       role: string;
@@ -205,6 +226,21 @@ export async function fetchConversation(settings: AppSettings, id: string) {
       model?: string;
     }>;
   }>(settings, `/api/conversations/${id}`);
+}
+
+export async function summarizeConversation(
+  settings: AppSettings,
+  id: string,
+  provider?: string,
+) {
+  return request<{ conversationId: string; content: string }>(
+    settings,
+    `/api/conversations/${id}/summarize`,
+    {
+      method: "POST",
+      body: JSON.stringify({ provider }),
+    },
+  );
 }
 
 export async function checkHealth(settings: AppSettings) {

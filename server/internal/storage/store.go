@@ -37,17 +37,24 @@ type Conversation struct {
 }
 
 type Message struct {
-	ID             int64  `json:"id"`
-	ConversationID string `json:"conversationId"`
-	Role           string `json:"role"`
-	CharacterID    string `json:"characterId,omitempty"`
-	CharacterName  string `json:"characterName,omitempty"`
-	Era            string `json:"era,omitempty"`
-	Round          int    `json:"round"`
-	Content        string `json:"content"`
-	Provider       string `json:"provider,omitempty"`
-	Model          string `json:"model,omitempty"`
-	CreatedAt      int64  `json:"createdAt"`
+	ID             int64      `json:"id"`
+	ConversationID string     `json:"conversationId"`
+	Role           string     `json:"role"`
+	CharacterID    string     `json:"characterId,omitempty"`
+	CharacterName  string     `json:"characterName,omitempty"`
+	Era            string     `json:"era,omitempty"`
+	Round          int        `json:"round"`
+	Content        string     `json:"content"`
+	Provider       string     `json:"provider,omitempty"`
+	Model          string     `json:"model,omitempty"`
+	Citations      []Citation `json:"citations,omitempty"`
+	CreatedAt      int64      `json:"createdAt"`
+}
+
+type Citation struct {
+	Title   string `json:"title"`
+	Source  string `json:"source,omitempty"`
+	Excerpt string `json:"excerpt"`
 }
 
 func Open(dataDir string) (*Store, error) {
@@ -62,6 +69,10 @@ func Open(dataDir string) (*Store, error) {
 	db.SetMaxOpenConns(1)
 	s := &Store{db: db}
 	if err := s.migrate(); err != nil {
+		_ = db.Close()
+		return nil, err
+	}
+	if err := s.migrateMessageCitations(); err != nil {
 		_ = db.Close()
 		return nil, err
 	}
@@ -81,6 +92,10 @@ func Open(dataDir string) (*Store, error) {
 		_ = db.Close()
 		return nil, err
 	}
+	if err := initSummaryMigration(s); err != nil {
+		_ = db.Close()
+		return nil, err
+	}
 	return s, nil
 }
 
@@ -91,6 +106,29 @@ func (s *Store) Close() error {
 	return s.db.Close()
 }
 
+func (s *Store) migrateMessageCitations() error {
+	rows, err := s.db.Query(`PRAGMA table_info(messages)`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id, notNull, pk int
+		var name, typ string
+		var def any
+		if err := rows.Scan(&id, &name, &typ, &notNull, &def, &pk); err != nil {
+			return err
+		}
+		if name == "citations_json" {
+			return nil
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+	_, err = s.db.Exec(`ALTER TABLE messages ADD COLUMN citations_json TEXT`)
+	return err
+}
 func (s *Store) migrate() error {
 	schema := `
 CREATE TABLE IF NOT EXISTS api_cache (
@@ -136,10 +174,10 @@ CREATE TABLE IF NOT EXISTS app_settings (
 }
 
 type legacyFile struct {
-	Cache         map[string]legacyCacheEntry   `json:"cache"`
-	Conversations map[string]Conversation       `json:"conversations"`
-	Messages      map[string][]Message          `json:"messages"`
-	NextMsgID     int64                         `json:"nextMsgId"`
+	Cache         map[string]legacyCacheEntry `json:"cache"`
+	Conversations map[string]Conversation     `json:"conversations"`
+	Messages      map[string][]Message        `json:"messages"`
+	NextMsgID     int64                       `json:"nextMsgId"`
 }
 
 type legacyCacheEntry struct {
@@ -316,7 +354,7 @@ func (s *Store) GetConversation(id string) (*Conversation, []Message, error) {
 		return nil, nil, err
 	}
 	rows, err := s.db.Query(
-		`SELECT id, conversation_id, role, character_id, character_name, era, round_num, content, provider, model, created_at FROM messages WHERE conversation_id = ? ORDER BY id ASC`,
+		`SELECT id, conversation_id, role, character_id, character_name, era, round_num, content, provider, model, citations_json, created_at FROM messages WHERE conversation_id = ? ORDER BY id ASC`,
 		id,
 	)
 	if err != nil {

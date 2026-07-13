@@ -44,14 +44,16 @@ func main() {
 	mux.Handle("PUT /api/settings", withCORS(handler.NewSettingsHandler(app)))
 	mux.Handle("GET /api/hot-list", withCORS(handler.NewHotListHandler(app)))
 	mux.Handle("GET /api/search", withCORS(handler.NewSearchHandler(app)))
+	mux.Handle("GET /api/scenarios", withCORS(handler.ScenariosHandler()))
+	mux.Handle("GET /api/demos", withCORS(handler.DemosHandler()))
 	mux.Handle("GET /api/characters", withCORS(handler.NewCharactersHandler(characters)))
 	mux.Handle("GET /api/providers", withCORS(handler.NewProvidersHandler(app)))
 	mux.Handle("POST /api/chat", withCORS(handler.NewChatHandler(app)))
 	mux.Handle("POST /api/chat/stream", withCORS(handler.NewChatStreamHandler(app)))
 	mux.Handle("POST /api/group-discuss", withCORS(handler.NewGroupDiscussHandler(app)))
 	mux.Handle("POST /api/group-discuss/stream", withCORS(handler.NewGroupDiscussStreamHandler(app)))
-	mux.Handle("/api/conversations", withCORS(handler.NewConversationsHandler(store)))
-	mux.Handle("/api/conversations/", withCORS(handler.NewConversationsHandler(store)))
+	mux.Handle("/api/conversations", withCORS(handler.NewConversationsHandler(app)))
+	mux.Handle("/api/conversations/", withCORS(handler.NewConversationsHandler(app)))
 
 	addr := ":" + port
 	log.Printf("renwen server listening on %s (db=%s/renwen.db, settings=sqlite, llm=%s, zhihu_mock=%v)",
